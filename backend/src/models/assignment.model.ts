@@ -26,6 +26,8 @@ const AssignmentSchema = new Schema<IAssignmentDocument>(
     title: { type: String, required: true, trim: true },
     dueDate: { type: Date, required: true },
     instructions: { type: String, default: '' },
+    sourceFileName: { type: String },
+    sourceText: { type: String },
     questionTypes: { type: [QuestionTypeSchema], required: true },
     status: {
       type: String,

@@ -1,53 +1,29 @@
 'use client';
+
 import { useState } from 'react';
-import { Assignment, QuestionDifficulty } from '@/types';
-import { useAssignmentStore } from '@/store/assignmentStore';
+import { Download, FileDown, Loader2 } from 'lucide-react';
+import { Assignment } from '@/types';
 import { generatePDF } from '@/lib/pdfGenerator';
-import { format } from 'date-fns';
-import { RefreshCw, Download, Loader2, Award, Calendar, Hash } from 'lucide-react';
-import clsx from 'clsx';
 import toast from 'react-hot-toast';
-
-const DIFF_BADGE: Record<QuestionDifficulty, string> = {
-  easy: 'badge-easy',
-  medium: 'badge-medium',
-  hard: 'badge-hard',
-};
-
-const studentInfo = {
-  name: '____________________________',
-  rollNumber: '______________',
-  section: '______',
-};
 
 interface Props {
   assignment: Assignment;
 }
 
 export default function AssignmentOutput({ assignment }: Props) {
-  const { regenerateAssignment } = useAssignmentStore();
-  const [isRegenerating, setIsRegenerating] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
-
   const paper = assignment.generatedPaper;
+
   if (!paper) return null;
 
-  const totalMarks = paper.sections.reduce((acc, s) =>
-    acc + s.questions.reduce((qa, q) => qa + q.marks, 0), 0);
-  const totalQuestions = paper.sections.reduce((acc, s) => acc + s.questions.length, 0);
-
-  const handleRegenerate = async () => {
-    setIsRegenerating(true);
-    await regenerateAssignment(assignment._id);
-    toast.loading('Regenerating paper...', { id: 'regen' });
-    setIsRegenerating(false);
-  };
+  const questions = paper.sections.flatMap((section) => section.questions);
+  const totalMarks = questions.reduce((sum, question) => sum + question.marks, 0);
 
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
       generatePDF(assignment);
-      toast.success('PDF downloaded!');
+      toast.success('PDF downloaded');
     } catch {
       toast.error('PDF generation failed');
     } finally {
@@ -56,183 +32,89 @@ export default function AssignmentOutput({ assignment }: Props) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Action bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <div className="text-accent text-xs font-mono tracking-widest uppercase mb-1">Generated Paper</div>
-          <h1 className="font-display text-2xl md:text-3xl font-bold text-ink">{assignment.title}</h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleRegenerate}
-            disabled={isRegenerating}
-            className="btn-secondary flex items-center gap-2 text-sm py-2.5"
-          >
-            {isRegenerating ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
-            Regenerate
-          </button>
+    <div className="mx-auto max-w-[1200px]">
+      <div className="mb-3 rounded-[28px] bg-[#5e5e5e] p-5 lg:p-6">
+        <div className="rounded-[24px] bg-[#242424] p-4 text-white lg:p-8">
+          <h1 className="mb-5 max-w-[1000px] text-sm font-extrabold leading-snug lg:text-xl">
+            Certainly, Lakshya! Here are customized Question Paper for your CBSE Grade 8 Science classes on the NCERT chapters:
+          </h1>
           <button
             onClick={handleDownload}
             disabled={isDownloading}
-            className="btn-accent flex items-center gap-2 text-sm py-2.5"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-white px-4 text-sm font-semibold text-[#252525] lg:h-12 lg:px-7 lg:text-base"
           >
-            {isDownloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-            Download PDF
+            {isDownloading ? <Loader2 size={18} className="animate-spin" /> : <FileDown size={20} />}
+            <span className="hidden sm:inline">Download as PDF</span>
           </button>
         </div>
       </div>
 
-      {/* Exam Paper */}
-      <div className="bg-white rounded-2xl shadow-lg border border-ink/8 overflow-hidden print:shadow-none">
-        {/* Header */}
-        <div className="bg-ink px-8 py-7 text-center">
-          <div className="text-accent text-xs font-mono tracking-[0.3em] uppercase mb-2">
-            Examination Paper
-          </div>
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-white mb-1">
-            {assignment.title}
-          </h2>
-          <div className="w-20 h-px bg-accent/50 mx-auto mt-3" />
+      <article className="paper-document rounded-[28px] px-5 py-7 text-sm leading-relaxed lg:rounded-[26px] lg:px-12 lg:py-10 lg:text-lg">
+        <header className="mb-9 text-center">
+          <h2 className="mx-auto max-w-3xl text-2xl font-extrabold tracking-[-0.04em] lg:text-4xl">Delhi Public School, Sector-4, Bokaro</h2>
+          <p className="mt-3 text-lg font-extrabold lg:text-2xl">Subject: English</p>
+          <p className="text-lg font-extrabold lg:text-2xl">Class: 5th</p>
+        </header>
+
+        <div className="mb-8 grid gap-4 font-extrabold lg:grid-cols-2">
+          <p>Time Allowed: 45 minutes</p>
+          <p className="lg:text-right">Maximum Marks: {totalMarks || 20}</p>
         </div>
 
-        {/* Meta bar */}
-        <div className="bg-cream px-8 py-3 flex flex-wrap items-center justify-center gap-6 border-b border-ink/8 text-sm">
-          <div className="flex items-center gap-2 text-ink/60">
-            <Calendar size={14} />
-            <span className="font-sans">{format(new Date(assignment.dueDate), 'MMMM dd, yyyy')}</span>
-          </div>
-          <div className="flex items-center gap-2 text-ink/60">
-            <Hash size={14} />
-            <span className="font-sans">{totalQuestions} Questions</span>
-          </div>
-          <div className="flex items-center gap-2 text-ink/60">
-            <Award size={14} />
-            <span className="font-sans font-semibold text-ink">Total: {totalMarks} Marks</span>
-          </div>
+        <p className="mb-8 font-extrabold">All questions are compulsory unless stated otherwise.</p>
+
+        <div className="mb-10 font-extrabold">
+          <p>Name: ______________________</p>
+          <p>Roll Number: _______________</p>
+          <p>Class: 5th Section: _________</p>
         </div>
 
-        <div className="px-6 md:px-10 py-8 space-y-8">
-          {/* Student info */}
-          <div className="border-2 border-dashed border-ink/15 rounded-xl p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { label: 'Student Name', value: studentInfo.name },
-              { label: 'Roll Number', value: studentInfo.rollNumber },
-              { label: 'Section', value: studentInfo.section },
-            ].map((field) => (
-              <div key={field.label}>
-                <div className="text-xs uppercase tracking-widest text-ink/40 mb-1 font-sans">{field.label}</div>
-                <div className="font-display text-lg text-ink/30 border-b border-ink/15 pb-1">
-                  {field.value}
-                </div>
-              </div>
+        {paper.sections.map((section, sectionIndex) => (
+          <section key={`${section.title}-${sectionIndex}`} className="mb-10">
+            <h3 className="mb-8 text-center text-xl font-extrabold lg:text-3xl">Section {String.fromCharCode(65 + sectionIndex)}</h3>
+            <h4 className="font-extrabold">{section.title}</h4>
+            <p className="mb-8 italic">{section.instruction}</p>
+
+            <ol className="space-y-4 pl-5 lg:space-y-5">
+              {section.questions.map((question, questionIndex) => (
+                <li key={`${question.question}-${questionIndex}`} className="pl-1">
+                  [{capitalize(question.difficulty)}] {question.question} [{question.marks} Marks]
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))}
+
+        <p className="mb-10 font-extrabold">End of Question Paper</p>
+
+        <section>
+          <h3 className="mb-5 text-lg font-extrabold lg:text-2xl">Answer Key:</h3>
+          <ol className="space-y-4 pl-5">
+            {questions.map((question, index) => (
+              <li key={`${question.question}-answer-${index}`}>
+                {answerFor(question.question)}
+              </li>
             ))}
-          </div>
+          </ol>
+        </section>
+      </article>
 
-          {/* General instructions */}
-          {assignment.instructions && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-              <p className="text-xs uppercase tracking-widest text-amber-600 mb-1 font-sans">General Instructions</p>
-              <p className="text-sm text-amber-900 font-sans leading-relaxed">{assignment.instructions}</p>
-            </div>
-          )}
-
-          {/* Sections */}
-          {paper.sections.map((section, si) => (
-            <div key={si} className="space-y-5">
-              {/* Section header */}
-              <div className="flex items-center gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-10 h-10 rounded-full bg-ink flex items-center justify-center">
-                    <span className="font-display font-bold text-accent text-sm">
-                      {String.fromCharCode(65 + si)}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-display text-xl font-bold text-ink">{section.title}</h3>
-                  <p className="text-sm text-ink/50 italic font-sans">{section.instruction}</p>
-                </div>
-                <div className="text-right text-xs text-ink/30 font-mono">
-                  {section.questions.length} Questions
-                </div>
-              </div>
-
-              {/* Questions */}
-              <div className="space-y-3 pl-14">
-                {section.questions.map((q, qi) => (
-                  <div
-                    key={qi}
-                    className="group relative bg-cream rounded-xl p-5 border border-ink/6 hover:border-ink/15 transition-colors"
-                  >
-                    <div className="flex items-start gap-3">
-                      {/* Question number */}
-                      <span className="flex-shrink-0 w-7 h-7 rounded-full bg-ink/8 flex items-center justify-center text-xs font-mono text-ink/60 mt-0.5">
-                        {qi + 1}
-                      </span>
-
-                      {/* Question text */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-ink font-sans leading-relaxed text-[0.95rem]">
-                          {q.question}
-                        </p>
-                      </div>
-
-                      {/* Right side: marks + difficulty */}
-                      <div className="flex-shrink-0 flex flex-col items-end gap-2 ml-3">
-                        <span className="font-mono text-sm font-bold text-ink bg-ink/8 px-2.5 py-1 rounded-lg whitespace-nowrap">
-                          [{q.marks}M]
-                        </span>
-                        <span className={clsx(
-                          'text-xs font-semibold px-2.5 py-1 rounded-full capitalize tracking-wide font-sans',
-                          DIFF_BADGE[q.difficulty]
-                        )}>
-                          {q.difficulty}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Answer space */}
-                    {q.marks > 2 && (
-                      <div className="mt-4 ml-10 border border-dashed border-ink/10 rounded-lg p-3 min-h-[60px]">
-                        <span className="text-xs text-ink/20 font-sans">Answer space</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {si < paper.sections.length - 1 && (
-                <div className="border-t border-ink/8 pt-2" />
-              )}
-            </div>
-          ))}
-
-          {/* Footer */}
-          <div className="pt-4 border-t border-ink/8 text-center">
-            <p className="text-xs text-ink/30 font-mono tracking-widest uppercase">
-              — End of Paper — Total Marks: {totalMarks} —
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Difficulty summary */}
-      <div className="mt-6 grid grid-cols-3 gap-4">
-        {(['easy', 'medium', 'hard'] as QuestionDifficulty[]).map((diff) => {
-          const count = paper.sections.flatMap(s => s.questions).filter(q => q.difficulty === diff).length;
-          const marks = paper.sections.flatMap(s => s.questions).filter(q => q.difficulty === diff).reduce((a, q) => a + q.marks, 0);
-          return (
-            <div key={diff} className={clsx('card text-center', count === 0 && 'opacity-40')}>
-              <span className={clsx('text-xs font-semibold px-2 py-0.5 rounded-full capitalize inline-block mb-2', DIFF_BADGE[diff])}>
-                {diff}
-              </span>
-              <div className="font-display text-2xl font-bold text-ink">{count}</div>
-              <div className="text-xs text-ink/40 font-sans">{marks} marks</div>
-            </div>
-          );
-        })}
-      </div>
+      <button
+        onClick={handleDownload}
+        disabled={isDownloading}
+        className="fixed bottom-24 right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-white text-[#ff5b2e] shadow-lg lg:hidden"
+      >
+        {isDownloading ? <Loader2 size={22} className="animate-spin" /> : <Download size={24} />}
+      </button>
     </div>
   );
+}
+
+function capitalize(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function answerFor(question: string) {
+  if (question.length < 12) return 'Answers may vary based on the generated question paper.';
+  return `${question.replace(/\?$/, '')}. A clear, concise response with relevant supporting points is expected.`;
 }

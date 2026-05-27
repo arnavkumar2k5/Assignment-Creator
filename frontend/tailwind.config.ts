@@ -14,6 +14,13 @@ const config: Config = {
         mono: ['var(--font-mono)'],
       },
       colors: {
+        veda: {
+          ink: '#2c2c2c',
+          muted: '#858585',
+          bg: '#d1d1d1',
+          orange: '#ff5b2e',
+          green: '#42c978',
+        },
         ink: {
           DEFAULT: '#1a1a2e',
           50: '#f0f0f8',

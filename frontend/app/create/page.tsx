@@ -1,8 +1,9 @@
 'use client';
+
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { BookOpen, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import AssignmentForm from '@/components/assignment/AssignmentForm';
+import VedaShell from '@/components/VedaShell';
 import toast from 'react-hot-toast';
 import { useAssignmentStore } from '@/store/assignmentStore';
 
@@ -13,51 +14,37 @@ export default function CreatePage() {
   const handleSubmit = async () => {
     const id = await createAssignment();
     if (id) {
-      toast.success('Assignment created! Generating paper...');
+      toast.success('Assignment created. Generating paper...');
       router.push(`/assignments/${id}`);
     }
   };
 
   return (
-    <div className="min-h-screen bg-paper">
-      {/* Header */}
-      <header className="bg-ink sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-2 text-paper/60 hover:text-paper transition-colors">
-            <ArrowLeft size={18} />
-            <span className="text-sm font-sans">Back</span>
-          </Link>
-          <div className="h-5 w-px bg-paper/20" />
-          <div className="flex items-center gap-2">
-            <BookOpen size={18} className="text-accent" />
-            <span className="font-display font-bold text-paper">AssessAI</span>
-          </div>
-          <div className="ml-auto text-paper/40 text-sm font-sans hidden sm:block">
-            Create Question Paper
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        {/* Page title */}
-        <div className="mb-10 animate-fade-up">
-          <div className="inline-flex items-center gap-2 text-accent text-sm font-mono tracking-widest uppercase mb-3">
-            <span className="w-8 h-px bg-accent" />
-            New Assignment
-          </div>
-          <h1 className="font-display text-4xl md:text-5xl font-bold text-ink mb-3">
-            Create Question Paper
-          </h1>
-          <p className="text-ink/50 text-lg font-sans">
-            Configure your assessment and AI will generate a structured, exam-ready paper.
-          </p>
+    <VedaShell active="assignments" topTitle="Assignment" backHref="/assignments" floatingCreate={false}>
+      <div className="mx-auto max-w-[1050px]">
+        <div className="mb-5 flex items-center justify-between lg:hidden">
+          <a href="/assignments" className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e4e4e4]">
+            <ArrowLeft size={26} />
+          </a>
+          <h1 className="text-base font-extrabold">Create Assignment</h1>
+          <span className="w-12" />
         </div>
 
-        {/* Form */}
-        <div className="animate-fade-up stagger-1">
-          <AssignmentForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+        <div className="mb-8 hidden items-start gap-5 lg:flex">
+          <span className="mt-3 h-7 w-7 rounded-full border-[7px] border-[#84dda7] bg-[#2fc165]" />
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-[-0.04em]">Create Assignment</h1>
+            <p className="mt-1 text-lg text-[#949494]">Set up a new assignment for your students</p>
+          </div>
         </div>
-      </main>
-    </div>
+
+        <div className="mx-auto mb-9 grid max-w-[860px] grid-cols-2 gap-2 px-2 lg:mb-10">
+          <span className="h-1.5 rounded-full bg-[#606060]" />
+          <span className="h-1.5 rounded-full bg-[#bfbfbf]" />
+        </div>
+
+        <AssignmentForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+      </div>
+    </VedaShell>
   );
 }

@@ -28,6 +28,8 @@ export interface Assignment {
   title: string;
   dueDate: string;
   instructions: string;
+  sourceFileName?: string;
+  sourceText?: string;
   questionTypes: QuestionType[];
   status: AssignmentStatus;
   generatedPaper?: GeneratedPaper;

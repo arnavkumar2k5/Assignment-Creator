@@ -6,6 +6,7 @@ const assignment_model_1 = require("../models/assignment.model");
 const assignment_queue_1 = require("../queues/assignment.queue");
 const redis_1 = require("../config/redis");
 const logger_1 = require("../utils/logger");
+const fileExtractor_service_1 = require("../services/fileExtractor.service");
 const QuestionTypeSchema = zod_1.z.object({
     type: zod_1.z.string().min(1, 'Question type is required'),
     count: zod_1.z.number().int().min(1, 'Count must be at least 1'),
@@ -21,6 +22,10 @@ const createAssignment = async (req, res, next) => {
     try {
         // multipart/form-data sends all fields as strings — parse questionTypes back to array
         const body = { ...req.body };
+        const uploadedFile = req.file;
+        if ((!body.title || !String(body.title).trim()) && uploadedFile?.originalname) {
+            body.title = (0, fileExtractor_service_1.titleFromFileName)(uploadedFile.originalname);
+        }
         if (typeof body.questionTypes === 'string') {
             try {
                 body.questionTypes = JSON.parse(body.questionTypes);
@@ -37,10 +42,13 @@ const createAssignment = async (req, res, next) => {
             return res.status(400).json({ success: false, errors: parsed.error.flatten().fieldErrors });
         }
         const { title, dueDate, instructions, questionTypes } = parsed.data;
+        const sourceText = await (0, fileExtractor_service_1.extractUploadedText)(uploadedFile);
         const assignment = await assignment_model_1.Assignment.create({
             title,
             dueDate: new Date(dueDate),
             instructions,
+            sourceFileName: uploadedFile?.originalname,
+            sourceText,
             questionTypes,
             status: 'pending',
         });

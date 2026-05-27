@@ -28,6 +28,8 @@ export interface IAssignment {
   title: string;
   dueDate: Date;
   instructions: string;
+  sourceFileName?: string;
+  sourceText?: string;
   questionTypes: QuestionType[];
   status: AssignmentStatus;
   generatedPaper?: GeneratedPaper;
@@ -40,6 +42,8 @@ export interface CreateAssignmentDTO {
   title: string;
   dueDate: string;
   instructions: string;
+  sourceFileName?: string;
+  sourceText?: string;
   questionTypes: QuestionType[];
 }
 

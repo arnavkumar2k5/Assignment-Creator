@@ -4,6 +4,7 @@ import { Assignment } from '../models/assignment.model';
 import { addAssignmentJob } from '../queues/assignment.queue';
 import { redis } from '../config/redis';
 import { logger } from '../utils/logger';
+import { extractUploadedText, titleFromFileName } from '../services/fileExtractor.service';
 
 const QuestionTypeSchema = z.object({
   type: z.string().min(1, 'Question type is required'),
@@ -22,6 +23,12 @@ export const createAssignment = async (req: Request, res: Response, next: NextFu
   try {
     // multipart/form-data sends all fields as strings — parse questionTypes back to array
     const body = { ...req.body };
+    const uploadedFile = req.file;
+
+    if ((!body.title || !String(body.title).trim()) && uploadedFile?.originalname) {
+      body.title = titleFromFileName(uploadedFile.originalname);
+    }
+
     if (typeof body.questionTypes === 'string') {
       try {
         body.questionTypes = JSON.parse(body.questionTypes);
@@ -39,11 +46,14 @@ export const createAssignment = async (req: Request, res: Response, next: NextFu
     }
 
     const { title, dueDate, instructions, questionTypes } = parsed.data;
+    const sourceText = await extractUploadedText(uploadedFile);
 
     const assignment = await Assignment.create({
       title,
       dueDate: new Date(dueDate),
       instructions,
+      sourceFileName: uploadedFile?.originalname,
+      sourceText,
       questionTypes,
       status: 'pending',
     });

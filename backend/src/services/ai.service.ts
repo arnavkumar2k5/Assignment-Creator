@@ -7,12 +7,16 @@ const buildPrompt = (assignment: IAssignment): string => {
   const questionBreakdown = assignment.questionTypes
     .map((qt: QuestionType) => `- ${qt.count} ${qt.type} question(s), each worth ${qt.marks} mark(s)`)
     .join('\n');
+  const sourceMaterial = assignment.sourceText
+    ? `\nUploaded Source Material (${assignment.sourceFileName || 'uploaded file'}):\n${assignment.sourceText}\n`
+    : '';
 
   return `You are an expert academic question paper creator.
 
 Assignment Title: ${assignment.title}
 Due Date: ${new Date(assignment.dueDate).toDateString()}
 Additional Instructions: ${assignment.instructions || 'None'}
+${sourceMaterial}
 
 Question Requirements:
 ${questionBreakdown}
@@ -43,7 +47,8 @@ Rules:
 - Generate exactly the number of questions specified
 - difficulty must be exactly: "easy", "medium", or "hard"
 - marks must match the specified marks per question type
-- Questions must be academically rigorous and relevant to the title
+- If uploaded source material is provided, base the questions primarily on that material
+- Questions must be academically rigorous and relevant to the title/source material
 - Do NOT include answers`;
 };
 

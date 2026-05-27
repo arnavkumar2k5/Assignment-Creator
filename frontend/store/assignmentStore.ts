@@ -43,7 +43,12 @@ const defaultForm: FormState = {
   title: '',
   dueDate: '',
   instructions: '',
-  questionTypes: [{ type: 'Multiple Choice', count: 5, marks: 2 }],
+  questionTypes: [
+    { type: 'Multiple Choice Questions', count: 4, marks: 1 },
+    { type: 'Short Questions', count: 3, marks: 2 },
+    { type: 'Diagram/Graph-Based Questions', count: 5, marks: 5 },
+    { type: 'Numerical Problems', count: 5, marks: 5 },
+  ],
   file: null,
 };
 
