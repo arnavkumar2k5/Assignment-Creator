@@ -142,12 +142,7 @@ function TopChrome({ title, backHref }: { title?: string; backHref?: string }) {
 
 function MobileChrome() {
   return (
-    <div className="lg:hidden sticky top-0 z-40 bg-[#d1d1d1] px-2.5 pb-3 pt-4">
-      <div className="mx-auto mb-3 flex h-10 max-w-sm items-center justify-between rounded-full bg-[#666b71] px-8 text-sm text-white">
-        <span className="font-bold">9:41</span>
-        <span>lock web-to-figma.design</span>
-        <span>share</span>
-      </div>
+    <div className="lg:hidden sticky top-0 z-40 bg-[#d1d1d1] px-2.5 pb-3 pt-3">
       <div className="flex h-14 items-center rounded-[14px] bg-white px-3 shadow-sm">
         <VedaLogo compact />
         <div className="ml-auto flex items-center gap-3">
