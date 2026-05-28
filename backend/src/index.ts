@@ -11,6 +11,7 @@ import { initSocket } from './sockets/socket';
 import assignmentRoutes from './routes/assignment.routes';
 import { errorHandler, notFound } from './middleware/error.middleware';
 import { logger } from './utils/logger';
+import "./workers/assignment.worker";
 
 const app = express();
 const server = http.createServer(app);
