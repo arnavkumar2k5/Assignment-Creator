@@ -119,7 +119,7 @@ function TopChrome({ title, backHref }: { title?: string; backHref?: string }) {
   return (
     <header className="hidden lg:flex h-16 items-center rounded-[18px] bg-white/82 px-6 shadow-[0_12px_36px_rgba(0,0,0,0.08)] backdrop-blur">
       {backHref && (
-        <Link href={backHref} className="mr-4 flex h-11 w-11 items-center justify-center rounded-full bg-white text-veda-ink shadow-sm">
+        <Link href={backHref as any} className="mr-4 flex h-11 w-11 items-center justify-center rounded-full bg-white text-veda-ink shadow-sm">
           <ArrowLeft size={26} />
         </Link>
       )}
